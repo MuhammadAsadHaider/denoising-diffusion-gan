@@ -193,7 +193,6 @@ def sample_from_model(coefficients, generator, n_time, x_init, T, opt):
         
     return x
 
-#%%
 def train(rank: int, gpu: int, args):
     from score_sde.models.discriminator import Discriminator_small, Discriminator_large
     from score_sde.models.ncsnpp_generator_adagn import NCSNpp
@@ -247,7 +246,7 @@ def train(rank: int, gpu: int, args):
             ])
         dataset = LMDBDataset(root='/datasets/celeba-lmdb/', name='celeba', train=True, transform=train_transform)
       
-    mdm_datasets = ['amass', 'uestc', 'humanact12', 'humanml', 'kit']
+    mdm_datasets = ['amass', 'uestc', 'humanact12', 'humanml', 'kit', 'h2s']
     if(args.dataset in mdm_datasets):
         data_loader, train_sampler, _ = get_dataset_loader(args.dataset, batch_size,args.num_frames,
                                                                 rank, args.world_size)
@@ -564,7 +563,7 @@ if __name__ == '__main__':
     
     #geenrator and training
     parser.add_argument('--exp', default='experiment_cifar_default', help='name of experiment')
-    parser.add_argument('--dataset', default='cifar10', help='name of dataset')
+    parser.add_argument('--dataset', default='h2s', help='name of dataset')
     parser.add_argument('--nz', type=int, default=100)
     parser.add_argument('--num_timesteps', type=int, default=4)
 
