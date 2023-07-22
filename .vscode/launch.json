@@ -1,0 +1,35 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Train DDGAN",
+      "type": "python",
+      "request": "launch",
+      "program": "train_ddgan.py",
+      "args": ["--dataset", "humanml", "--num_channels", "263", "--batch_size", "32"],
+      "justMyCode": true
+    },
+    {
+      "name": "Sample from DDGAN",
+      "type": "python",
+      "request": "launch",
+      "program": "./sample/generate.py",
+      "args": ["--dataset", "humanml","--output_dir", "./save/epoch325/toolbox", "--exp", "experiment", "--epoch_id", "325",
+              "--text_prompt","the person walked forward and is picking up his toolbox."],
+      "justMyCode": true
+    },
+    {
+      "name": "Eval DDGAN",
+      "type": "python",
+      "request": "launch",
+      "program": "./eval/eval_humanml.py",
+      "args": ["--dataset", "humanml","--model_path", "saved_info/dd-gan/humanml/experiment/netG_325", "--eval_mode", "debug",
+      "--output_dir", "./save", "--exp", "experiment", "--epoch_id", "325","--node_rank", "0", "--text_prompt","'A person jumping'"],
+      "justMyCode": true
+  }
+  ]
+}
+
