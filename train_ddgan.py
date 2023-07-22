@@ -18,10 +18,10 @@ import torch.optim as optim
 import torchvision
 
 import torchvision.transforms as transforms
-from torchvision.datasets import CIFAR10
-from datasets_prep.lsun import LSUN
+# from torchvision.datasets import CIFAR10
+# from datasets_prep.lsun import LSUN
 from datasets_prep.stackmnist_data import StackedMNIST, _data_transforms_stacked_mnist
-from datasets_prep.lmdb_datasets import LMDBDataset
+#from datasets_prep.lmdb_datasets import LMDBDataset
 from data_loaders.get_data import get_dataset_loader
 
 from torch.multiprocessing import Process
@@ -209,60 +209,10 @@ def train(rank: int, gpu: int, args):
     print(f'Hello from the child process using gpu {gpu}, rank {rank}', flush=True)
     
     nz = args.nz #latent dimension
-    
-    if args.dataset == 'cifar10':
-        dataset = CIFAR10('./data', train=True, transform=transforms.Compose([
-                        transforms.Resize(32),
-                        transforms.RandomHorizontalFlip(),
-                        transforms.ToTensor(),
-                        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))]), download=True)
-       
-    
-    elif args.dataset == 'stackmnist':
-        train_transform, valid_transform = _data_transforms_stacked_mnist()
-        dataset = StackedMNIST(root='./data', train=True, download=False, transform=train_transform)
-        
-    elif args.dataset == 'lsun':
-        
-        train_transform = transforms.Compose([
-                        transforms.Resize(args.image_size),
-                        transforms.CenterCrop(args.image_size),
-                        transforms.RandomHorizontalFlip(),
-                        transforms.ToTensor(),
-                        transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))
-                    ])
-
-        train_data = LSUN(root='/datasets/LSUN/', classes=['church_outdoor_train'], transform=train_transform)
-        subset = list(range(0, 120000))
-        dataset = torch.utils.data.Subset(train_data, subset)
       
-    
-    elif args.dataset == 'celeba_256':
-        train_transform = transforms.Compose([
-                transforms.Resize(args.image_size),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))
-            ])
-        dataset = LMDBDataset(root='/datasets/celeba-lmdb/', name='celeba', train=True, transform=train_transform)
-      
-    mdm_datasets = ['amass', 'uestc', 'humanact12', 'humanml', 'kit', 'h2s']
-    if(args.dataset in mdm_datasets):
-        data_loader, train_sampler, _ = get_dataset_loader(args.dataset, batch_size,args.num_frames,
-                                                                rank, args.world_size)
-        mdm = True
-
-    else:    
-        train_sampler = torch.utils.data.distributed.DistributedSampler(dataset,
-                                                                        num_replicas=args.world_size,
-                                                                        rank=rank)
-        data_loader = torch.utils.data.DataLoader(dataset,
-                                                batch_size=batch_size,
-                                                shuffle=False,
-                                                num_workers=4,
-                                                pin_memory=True,
-                                                sampler=train_sampler,
-                                                drop_last = True)
+    data_loader, train_sampler, _ = get_dataset_loader(args.dataset, batch_size,args.num_frames,
+                                                            rank, args.world_size)
+    mdm = True
     
     netG = NCSNpp(args).to(device)
 
