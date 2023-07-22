@@ -90,8 +90,8 @@ class NCSNpp(nn.Module):
     # assert embedding_type in ['fourier', 'positional']
     # combine_method = config.progressive_combine.lower()
     # combiner = functools.partial(Combine, method=combine_method)
-    self.input_process = InputProcess(data_rep='rot6d', input_feats=263, latent_dim=self.z_emb_dim)
-    self.output_process = OutputProcess(data_rep='rot6d', input_feats=263, latent_dim=self.z_emb_dim, njoints=263, nfeats=1)
+    self.input_process = InputProcess(data_rep='rot6d', input_feats=225, latent_dim=self.z_emb_dim)
+    self.output_process = OutputProcess(data_rep='rot6d', input_feats=225, latent_dim=self.z_emb_dim, njoints=225, nfeats=1)
     self.position_encoder = PositionalEncoding(self.z_emb_dim)
     self.embed_timestep = TimestepEmbedder(self.z_emb_dim, self.position_encoder)
     self.cond_mask_prob = 0.1

@@ -159,7 +159,7 @@ def add_sampling_options(parser):
 
     parser.add_argument('--compute_fid', action='store_true', default=False,
                             help='whether or not compute FID')
-    parser.add_argument('--num_channels', type=int, default=263,
+    parser.add_argument('--num_channels', type=int, default=225,
                             help='channel of image')
     parser.add_argument('--centered', action='store_false', default=True,
                             help='-1,1 scale')
