@@ -529,7 +529,7 @@ if __name__ == '__main__':
     parser.add_argument('--z_emb_dim', type=int, default=256)
     parser.add_argument('--t_emb_dim', type=int, default=256)
     parser.add_argument('--batch_size', type=int, default=128, help='input batch size')
-    parser.add_argument('--num_epoch', type=int, default=1200)
+    parser.add_argument('--num_epoch', type=int, default=200)
     parser.add_argument('--ngf', type=int, default=64)
 
     parser.add_argument('--lr_g', type=float, default=1e-4, help='learning rate g')
