@@ -198,6 +198,7 @@ class TrainingHelper:
             assert model_output.shape == target.shape == x_start.shape  # [bs, njoints, nfeats, nframes]
 
             terms["rot_mse"] = self.masked_l2(target, model_output, mask) # mean_flat(rot_mse)
+            print('rot_mse', terms["rot_mse"].mean().item())
 
             target_xyz, model_output_xyz = None, None
 
@@ -212,6 +213,7 @@ class TrainingHelper:
                 target_xyz_vel = (target_xyz[:, :, :, 1:] - target_xyz[:, :, :, :-1])
                 model_output_xyz_vel = (model_output_xyz[:, :, :, 1:] - model_output_xyz[:, :, :, :-1])
                 terms["vel_xyz_mse"] = self.masked_l2(target_xyz_vel, model_output_xyz_vel, mask[:, :, :, 1:])
+                print('vel_xyz_mse', terms["vel_xyz_mse"].mean().item())
 
             if self.lambda_fc > 0.:
                 torch.autograd.set_detect_anomaly(True)

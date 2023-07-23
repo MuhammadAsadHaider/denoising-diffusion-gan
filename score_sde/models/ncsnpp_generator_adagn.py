@@ -306,10 +306,8 @@ class NCSNpp(nn.Module):
     
     
     mapping_layers = [
-      nn.Linear(128, 400),
+      nn.Linear(128, 512),
       self.act,
-      nn.Linear(400, 512),
-      self.act, 
     ]
     # for _ in range(config.n_mlp):
     #     mapping_layers.append(dense(self.z_emb_dim, self.z_emb_dim))

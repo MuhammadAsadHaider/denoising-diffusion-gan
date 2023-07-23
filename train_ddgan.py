@@ -291,6 +291,8 @@ def train(rank: int, gpu: int, args):
     
     for epoch in range(init_epoch, args.num_epoch+1):
         train_sampler.set_epoch(epoch)
+        geo_losses = []
+        adv_losses = []
        
         for iteration, (x, cond) in enumerate(data_loader):
             
@@ -389,8 +391,11 @@ def train(rank: int, gpu: int, args):
             loss = train_helper.training_losses(x_0_predict, post_params['mean'], real_data, model_kwargs=cond , noise = post_params['noise'], dataset=args.dataset)
             a_l = F.softplus(-output)
             errG = a_l + loss
-            print(f"geometric loss: {loss.mean().item()}")
-            print(f"adversarial loss: {a_l.mean().item()}")
+            
+
+            geo_losses.append(loss.mean().item())
+            adv_losses.append(a_l.mean().item())
+
             errG = errG.mean()
             
             errG.backward()
@@ -401,6 +406,8 @@ def train(rank: int, gpu: int, args):
             global_step += 1
             if iteration % 100 == 0:
                 if rank == 0:
+                    print(f"geometric loss: {geo_losses.mean()}")
+                    print(f"adversarial loss: {adv_losses.mean()}")
                     print('epoch {} iteration{}, G Loss: {}, D Loss: {}'.format(epoch,iteration, errG.item(), errD.item()))
         
         if not args.no_lr_decay:
@@ -525,11 +532,11 @@ if __name__ == '__main__':
     parser.add_argument('--num_epoch', type=int, default=1200)
     parser.add_argument('--ngf', type=int, default=64)
 
-    parser.add_argument('--lr_g', type=float, default=1.5e-4, help='learning rate g')
+    parser.add_argument('--lr_g', type=float, default=1e-4, help='learning rate g')
     parser.add_argument('--lr_d', type=float, default=1e-4, help='learning rate d')
-    parser.add_argument('--beta1', type=float, default=0.5,
+    parser.add_argument('--beta1', type=float, default=0.9,
                             help='beta1 for adam')
-    parser.add_argument('--beta2', type=float, default=0.9,
+    parser.add_argument('--beta2', type=float, default=0.999,
                             help='beta2 for adam')
     parser.add_argument('--no_lr_decay',action='store_true', default=False)
     
