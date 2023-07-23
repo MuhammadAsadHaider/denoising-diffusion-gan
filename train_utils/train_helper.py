@@ -106,13 +106,13 @@ class TrainingHelper:
     def __init__(
         self,
         loss_type,
-        lambda_rcxyz=1.,
+        lambda_rcxyz=0.,
         lambda_vel=0.,
         lambda_pose=1.,
         lambda_orient=1.,
         lambda_loc=1.,
         data_rep='rot6d',
-        lambda_root_vel=1.,
+        lambda_root_vel=0.,
         lambda_vel_rcxyz=1.,
         lambda_fc=0.
         
@@ -207,12 +207,11 @@ class TrainingHelper:
                 terms["rcxyz_mse"] = self.masked_l2(target_xyz, model_output_xyz, mask)  # mean_flat((target_xyz - model_output_xyz) ** 2)
 
             if self.lambda_vel_rcxyz > 0.:
-                if self.data_rep == 'rot6d' and dataset.dataname in ['humanact12', 'uestc']:
-                    target_xyz = get_xyz(target) if target_xyz is None else target_xyz
-                    model_output_xyz = get_xyz(model_output) if model_output_xyz is None else model_output_xyz
-                    target_xyz_vel = (target_xyz[:, :, :, 1:] - target_xyz[:, :, :, :-1])
-                    model_output_xyz_vel = (model_output_xyz[:, :, :, 1:] - model_output_xyz[:, :, :, :-1])
-                    terms["vel_xyz_mse"] = self.masked_l2(target_xyz_vel, model_output_xyz_vel, mask[:, :, :, 1:])
+                target_xyz = target
+                model_output_xyz = model_output
+                target_xyz_vel = (target_xyz[:, :, :, 1:] - target_xyz[:, :, :, :-1])
+                model_output_xyz_vel = (model_output_xyz[:, :, :, 1:] - model_output_xyz[:, :, :, :-1])
+                terms["vel_xyz_mse"] = self.masked_l2(target_xyz_vel, model_output_xyz_vel, mask[:, :, :, 1:])
 
             if self.lambda_fc > 0.:
                 torch.autograd.set_detect_anomaly(True)
@@ -241,7 +240,8 @@ class TrainingHelper:
             loss = terms["rot_mse"] +\
                             (self.lambda_vel * terms.get('vel_mse', 0.)) +\
                             (self.lambda_rcxyz * terms.get('rcxyz_mse', 0.)) + \
-                            (self.lambda_fc * terms.get('fc', 0.))
+                            (self.lambda_fc * terms.get('fc', 0.)) + \
+                            (self.lambda_vel_rcxyz * terms.get('vel_xyz_mse', 0.))
 
         else:
             raise NotImplementedError(self.loss_type)
