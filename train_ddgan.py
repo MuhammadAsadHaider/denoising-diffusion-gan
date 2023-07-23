@@ -406,8 +406,8 @@ def train(rank: int, gpu: int, args):
             global_step += 1
             if iteration % 100 == 0:
                 if rank == 0:
-                    print(f"geometric loss: {geo_losses.mean()}")
-                    print(f"adversarial loss: {adv_losses.mean()}")
+                    print(f"geometric loss: {np.mean(geo_losses)}")
+                    print(f"adversarial loss: {np.mean(adv_losses)}")
                     print('epoch {} iteration{}, G Loss: {}, D Loss: {}'.format(epoch,iteration, errG.item(), errD.item()))
         
         if not args.no_lr_decay:
