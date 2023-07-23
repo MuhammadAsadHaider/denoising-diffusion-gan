@@ -386,7 +386,7 @@ def train(rank: int, gpu: int, args):
             output = netD(x_pos_sample, t, x_tp1.detach()).view(-1)
 
             train_helper = th.TrainingHelper(th.LossType.MSE, data_rep='hml_vec')
-            loss = train_helper.training_losses(x_0_predict, post_params['mean'], real_data, noise = post_params['noise'], dataset=args.dataset)
+            loss = train_helper.training_losses(x_0_predict, post_params['mean'], real_data, model_kwargs=cond , noise = post_params['noise'], dataset=args.dataset)
             
             errG = F.softplus(-output) + loss
             errG = errG.mean()

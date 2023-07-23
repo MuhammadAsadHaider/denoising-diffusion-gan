@@ -172,7 +172,7 @@ class TrainingHelper:
         """
 
         # enc = model.model._modules['module']
-        mask = None
+        mask = model_kwargs['y']['mask']
         rot2xyz = Rotation2xyz(device='cpu', dataset=dataset)
         data_rep = 'hml_vec'
         rot2xyz_pose_rep = 'xyz' if data_rep in ['xyz', 'hml_vec'] else data_rep
