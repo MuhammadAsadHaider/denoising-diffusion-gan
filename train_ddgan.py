@@ -387,8 +387,10 @@ def train(rank: int, gpu: int, args):
 
             train_helper = th.TrainingHelper(th.LossType.MSE, data_rep='hml_vec')
             loss = train_helper.training_losses(x_0_predict, post_params['mean'], real_data, model_kwargs=cond , noise = post_params['noise'], dataset=args.dataset)
-            
-            errG = F.softplus(-output) + loss
+            a_l = F.softplus(-output)
+            errG = a_l + loss
+            print(f"geometric loss: {loss.mean().item()}")
+            print(f"adversarial loss: {a_l.mean().item()}")
             errG = errG.mean()
             
             errG.backward()
