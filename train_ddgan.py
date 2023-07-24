@@ -291,8 +291,10 @@ def train(rank: int, gpu: int, args):
     
     for epoch in range(init_epoch, args.num_epoch+1):
         train_sampler.set_epoch(epoch)
-        geo_losses = []
-        adv_losses = []
+        # geo_losses = []
+        # adv_losses = []
+        g_losses = []
+        d_losses = []
        
         for iteration, (x, cond) in enumerate(data_loader):
             
@@ -363,6 +365,9 @@ def train(rank: int, gpu: int, args):
     
             
             errD = errD_real + errD_fake
+
+            d_losses.append(errD.item())
+
             # Update D
             optimizerD.step()
             
@@ -387,14 +392,14 @@ def train(rank: int, gpu: int, args):
             
             output = netD(x_pos_sample, t, x_tp1.detach()).view(-1)
 
-            train_helper = th.TrainingHelper(th.LossType.MSE, data_rep='hml_vec')
-            loss = train_helper.training_losses(x_0_predict, post_params['mean'], real_data, model_kwargs=cond , noise = post_params['noise'], dataset=args.dataset)
+            # train_helper = th.TrainingHelper(th.LossType.MSE, data_rep='hml_vec')
+            # loss = train_helper.training_losses(x_0_predict, post_params['mean'], real_data, model_kwargs=cond , noise = post_params['noise'], dataset=args.dataset)
             a_l = F.softplus(-output)
-            errG = a_l + loss
+            errG = a_l # + loss
             
 
-            geo_losses.append(loss.mean().item())
-            adv_losses.append(a_l.mean().item())
+            # geo_losses.append(loss.mean().item())
+            g_losses.append(a_l.mean().item())
 
             errG = errG.mean()
             
@@ -406,9 +411,9 @@ def train(rank: int, gpu: int, args):
             global_step += 1
             if iteration % 100 == 0:
                 if rank == 0:
-                    print(f"geometric loss: {np.mean(geo_losses)}")
-                    print(f"adversarial loss: {np.mean(adv_losses)}")
-                    print('epoch {} iteration{}, G Loss: {}, D Loss: {}'.format(epoch,iteration, errG.item(), errD.item()))
+                    # print(f"geometric loss: {np.mean(geo_losses)}")
+                    # print(f"adversarial loss: {np.mean(adv_losses)}")
+                    print('epoch {} iteration{}, G Loss: {}, D Loss: {}'.format(epoch, iteration, np.mean(g_losses), np.mean(d_losses)))
         
         if not args.no_lr_decay:
             
