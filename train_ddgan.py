@@ -243,8 +243,8 @@ def train(rank: int, gpu: int, args):
     if args.use_ema:
         optimizerG = EMA(optimizerG, ema_decay=args.ema_decay)
     
-    schedulerG = torch.optim.lr_scheduler.CosineAnnealingLR(optimizerG, args.num_epoch, eta_min=1e-5)
-    schedulerD = torch.optim.lr_scheduler.CosineAnnealingLR(optimizerD, args.num_epoch, eta_min=1e-5)
+    schedulerG = torch.optim.lr_scheduler.CosineAnnealingLR(optimizerG, args.num_epoch, eta_min=1e-7)
+    schedulerD = torch.optim.lr_scheduler.CosineAnnealingLR(optimizerD, args.num_epoch, eta_min=1e-7)
     
     
     
@@ -267,6 +267,9 @@ def train(rank: int, gpu: int, args):
     coeff = Diffusion_Coefficients(args, device)
     pos_coeff = Posterior_Coefficients(args, device)
     T = get_time_schedule(args, device)
+
+    g_weights = torch.load(os.path.join(exp_path, 'netG_150.pth'), map_location=device)
+    netG.load_state_dict(g_weights)
     
     if args.resume:
         checkpoint_file = os.path.join(exp_path, 'content.pth')
@@ -532,8 +535,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_epoch', type=int, default=200)
     parser.add_argument('--ngf', type=int, default=64)
 
-    parser.add_argument('--lr_g', type=float, default=1e-4, help='learning rate g')
-    parser.add_argument('--lr_d', type=float, default=1e-4, help='learning rate d')
+    parser.add_argument('--lr_g', type=float, default=1e-6, help='learning rate g')
+    parser.add_argument('--lr_d', type=float, default=1e-6, help='learning rate d')
     parser.add_argument('--beta1', type=float, default=0.9,
                             help='beta1 for adam')
     parser.add_argument('--beta2', type=float, default=0.999,
