@@ -30,7 +30,9 @@ def setup_params():
     out_path = args.output_dir
     
     max_frames = 196 if args.dataset in ['kit', 'humanml'] else 60
+    max_frames = 150 if args.dataset in ['h2s'] else 60
     fps = 12.5 if args.dataset == 'kit' else 20
+    fps = 24 if args.dataset == 'h2s' else fps
     n_frames = min(max_frames, int(args.motion_length*fps))
     is_using_data = not any([args.input_text, args.text_prompt, args.action_file, args.action_name])
 
@@ -73,7 +75,7 @@ def setup_params():
     all_text = []
     total_num_samples = args.num_samples * args.num_repetitions
     data_rep = 'hml_vec'
-    njoints = 263
+    njoints = 225
     nfeats = 1
 
     data, dataset = load_dataset(args, max_frames, n_frames)
@@ -126,6 +128,11 @@ def generate_sample(args, netG, device, data_rep, dataset, model_kwargs, all_mot
         x_t_1 = torch.randn(args.batch_size, args.num_channels,1, n_frames).to(device)
         sample = dg.sample_from_model(pos_coeff, netG, args.num_timesteps, x_t_1, T,  args)
 
+        if args.dataset == 'h2s':
+            sample = dataset.t2m_dataset.inv_transform(sample.cpu().permute(0, 2, 3, 1)).float()
+            np.save(f'sample_{rep_i}.npy', sample.cpu().numpy())
+            continue
+
 
         # sample = torch.load('./saved_tensor/sample.pt')
 
@@ -164,8 +171,10 @@ def main():
     out_path = args.output_dir
     
     max_frames = 196 if args.dataset in ['kit', 'humanml'] else 60
+    max_frames = 150 if args.dataset in ['h2s'] else 60
     fps = 12.5 if args.dataset == 'kit' else 20
-    n_frames = min(max_frames, int(args.motion_length*fps))
+    fps = 24 if args.dataset == 'h2s' else fps
+    n_frames = 150
     is_using_data = not any([args.input_text, args.text_prompt, args.action_file, args.action_name])
 
 
@@ -207,7 +216,7 @@ def main():
     all_text = []
     total_num_samples = args.num_samples * args.num_repetitions
     data_rep = 'hml_vec'
-    njoints = 263
+    njoints = 225
     nfeats = 1
 
     data, dataset = load_dataset(args, max_frames, n_frames)
@@ -253,6 +262,11 @@ def main():
 
         x_t_1 = torch.randn(args.batch_size, args.num_channels,1, n_frames).to(device)
         sample = dg.sample_from_model(pos_coeff, netG, args.num_timesteps, x_t_1, T,  args)
+
+        if args.dataset == 'h2s':
+            sample = data.dataset.t2m_dataset.inv_transform(sample.cpu().permute(0, 2, 3, 1)).float()
+            np.save(os.path.join(out_path, f'sample_{rep_i}.npy'), sample.cpu().numpy())
+            continue
 
         # sample = torch.load('./saved_tensor/sample.pt')
 
